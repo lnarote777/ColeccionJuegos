@@ -49,6 +49,28 @@ class GameService {
         }
     }
 
+    fun getGame(titulo: String): Game?{
+        return try {
+            val filter = Filters.eq("titulo", titulo)
+            val gameDoc = collection.find(filter).firstOrNull()
+
+            if (gameDoc != null) {
+                val title = gameDoc.getString("titulo") ?: "Sin título"
+                val genero = gameDoc.getString("genero") ?: "Sin género"
+                val precio = gameDoc.getDouble("precio") ?: 0.0
+                val fechaLanz = gameDoc.getDate("fecha_lanz") ?: Date()
+
+                Game(title, genero, precio, fechaLanz)
+            } else {
+                println("No se encontró ningún juego con el título: $titulo")
+                null
+            }
+        } catch (e: Exception) {
+            println("Error al buscar el juego: ${e.message}")
+            null
+        }
+    }
+
     fun getGameByGender(gender: String): MutableList<Game> {
         val gameList = mutableListOf<Game>()
         try {
