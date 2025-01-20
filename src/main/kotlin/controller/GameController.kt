@@ -38,6 +38,10 @@ class GameController {
         }
     }
 
+    fun listAllGames():List<Game>{
+        return gameService.listAllGames()
+    }
+
     fun updateGame(){
         println("Ingrese el título del juego que desea actualizar:")
         val titulo = readln()

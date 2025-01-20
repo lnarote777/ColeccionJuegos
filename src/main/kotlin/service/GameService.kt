@@ -13,6 +13,12 @@ class GameService {
 
     fun createGame(game: Game): Boolean{
         return try {
+            val exists = collection.find(Filters.eq("titulo", game.titulo)).firstOrNull()
+            if (exists != null) {
+                println("Error: Ya existe un juego con el título '${game.titulo}'.")
+                return false
+            }
+
             val newGame = Document().apply {
                 append("titulo", game.titulo)
                 append("genero", game.genero)
@@ -71,11 +77,24 @@ class GameService {
         }
     }
 
+    fun listAllGames(): List<Game> {
+        val games = mutableListOf<Game>()
+        collection.find().forEach { doc ->
+            val titulo = doc.getString("titulo") ?: "Sin título"
+            val genero = doc.getString("genero") ?: "Sin género"
+            val precio = doc.getDouble("precio") ?: 0.0
+            val fechaLanz = doc.getDate("fecha_lanz") ?: Date()
+            games.add(Game(titulo, genero, precio, fechaLanz))
+        }
+        return games
+    }
+
     fun getGameByGender(gender: String): MutableList<Game> {
         val gameList = mutableListOf<Game>()
         try {
-            val games = Filters.eq("genero", gender)
-            val busc = collection.find(games)
+            val filter = Filters.eq("genero", gender)
+            val busc = collection.find(filter).sort(Document("titulo", 1))
+
 
             busc.forEach { game ->
                 val titulo = game.getString("titulo") ?: "Sin título"
